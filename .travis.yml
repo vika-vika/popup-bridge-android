@@ -10,14 +10,14 @@ android:
     - tools
     - android-26
     - android-25
-    - sys-img-armeabi-v7a-android-25
+    - sys-img-arm64-v8a-google_apis-25
     - build-tools-26.0.0
     - platform-tools
     - extra-android-support
     - extra-android-m2repository
     - extra-google-m2repository
 before_script:
-  - echo no | android create avd --force -n test -t android-25 --abi armeabi-v7a
+  - echo no | android create avd --force -n test -t android-25 --abi arm64-v8a
   - emulator -avd test -skin WXGA720 -no-audio -no-window &
   - android-wait-for-emulator
   - sleep 60
