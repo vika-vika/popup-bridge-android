@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.By;
+import android.support.test.uiautomator.Direction;
 import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.webkit.WebView;
 
 import com.braintreepayments.popupbridge.example.MainActivity;
 
@@ -46,13 +48,18 @@ public class PayPalCheckoutPopupBridgeTest {
     public void opensCheckout_returnsPaymentToken() throws UiObjectNotFoundException {
         onDevice(withContentDescription("The safer, easier way to pay")).perform(click());
         login();
+        onDevice(withContentDescription("Pay with")).waitForExists(BROWSER_TIMEOUT);
+
+        UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        UiObject2 webview = uiDevice.findObject(By.clazz(WebView.class));
+        webview.scroll(Direction.DOWN, 100);
+
         onDevice(withContentDescription("Pay Now")).perform(click());
 
-        onDevice(withResourceId("log")).check(
+        onDevice(withResourceId("log")).waitForExists(BROWSER_TIMEOUT).check(
                 contentDescription(containsString("\"paymentToken\": \"EC-")),
                 contentDescription(containsString("\"intent\": \"sale")),
-                contentDescription(containsString("returnUrl"))
-        );
+                contentDescription(containsString("returnUrl")));
     }
 
     private void login() {
@@ -60,10 +67,13 @@ public class PayPalCheckoutPopupBridgeTest {
 
         try {
             // Force a login, otherwise continue
-            onDevice(withContentDescription("Not you?")).perform(click());
+            onDevice(withContentDescription("Not you?"))
+                    .waitForExists(BROWSER_TIMEOUT)
+                    .perform(click());
         } catch (RuntimeException ignored) {}
 
-        onDevice(withContentDescription("Log In")).waitForExists(BROWSER_TIMEOUT);
+        onDevice(withContentDescription("Log In"))
+                .waitForExists(BROWSER_TIMEOUT);
 
         List<UiObject2> editTexts = uiDevice.findObjects(By.clazz("android.widget.EditText"));
 
