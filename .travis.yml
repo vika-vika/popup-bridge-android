@@ -17,7 +17,8 @@ android:
     - extra-android-m2repository
     - extra-google-m2repository
 before_script:
-  - echo no | avdmanager create avd --force -n test -k "system-images;android-25;google_apis;armeabi-v7a"
+  - android list targets
+  - echo no | android create avd --force -n test -t android-25 --abi "google_apis/armeabi-v7a"
   - emulator -avd test -skin WXGA720 -no-audio -no-window &
   - android-wait-for-emulator
   - sleep 60
