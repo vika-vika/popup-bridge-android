@@ -10,7 +10,7 @@ android:
     - tools
     - android-26
     - android-25
-    - sys-img-armeabi-v7a-google_apis-25
+    - sys-img-armeabi-v7a-google_apis-23
     - build-tools-26.0.0
     - platform-tools
     - extra-android-support
@@ -18,7 +18,7 @@ android:
     - extra-google-m2repository
 before_script:
   - android list targets
-  - echo no | android create avd --force -n test -t android-25 --abi "google_apis/armeabi-v7a"
+  - echo no | android create avd --force -n test -t android-23 --abi armeabi-v7a
   - emulator -avd test -skin WXGA720 -no-audio -no-window &
   - android-wait-for-emulator
   - sleep 60

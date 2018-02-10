@@ -8,6 +8,7 @@ import android.support.test.uiautomator.Direction;
 import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.view.View;
 import android.webkit.WebView;
 
 import com.braintreepayments.popupbridge.example.MainActivity;
@@ -17,13 +18,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.lukekorth.deviceautomator.AutomatorAction.click;
-import static com.lukekorth.deviceautomator.AutomatorAssertion.contentDescription;
 import static com.lukekorth.deviceautomator.DeviceAutomator.onDevice;
 import static com.lukekorth.deviceautomator.UiObjectMatcher.withContentDescription;
-import static com.lukekorth.deviceautomator.UiObjectMatcher.withResourceId;
-import static org.hamcrest.CoreMatchers.containsString;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class PayPalCheckoutPopupBridgeTest {
@@ -46,29 +46,33 @@ public class PayPalCheckoutPopupBridgeTest {
 
     @Test
     public void opensCheckout_returnsPaymentToken() throws UiObjectNotFoundException {
+        UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+
         onDevice(withContentDescription("The safer, easier way to pay")).perform(click());
-        login();
+        login(uiDevice);
         onDevice(withContentDescription("Pay with")).waitForExists(BROWSER_TIMEOUT);
 
-        UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         UiObject2 webview = uiDevice.findObject(By.clazz(WebView.class));
         webview.scroll(Direction.DOWN, 100);
 
         onDevice(withContentDescription("Pay Now")).perform(click());
 
-        onDevice(withResourceId("log")).waitForExists(BROWSER_TIMEOUT).check(
-                contentDescription(containsString("\"paymentToken\": \"EC-")),
-                contentDescription(containsString("\"intent\": \"sale")),
-                contentDescription(containsString("returnUrl")));
+        onDevice(withContentDescription("The safer, easier way to pay")).waitForExists(BROWSER_TIMEOUT);
+
+        List<UiObject2> views = uiDevice.findObjects(By.clazz(View.class));
+        UiObject2 logView = views.get(views.size()-1);
+        String log = logView.getContentDescription();
+
+        assertTrue(log.contains("\"paymentToken\": \"EC-"));
+        assertTrue(log.contains("\"intent\": \"sale"));
+        assertTrue(log.contains("returnUrl"));
     }
 
-    private void login() {
-        UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-
+    private void login(UiDevice uiDevice) {
         try {
             // Force a login, otherwise continue
             onDevice(withContentDescription("Not you?"))
-                    .waitForExists(BROWSER_TIMEOUT)
+                    .waitForExists(TimeUnit.SECONDS.toMillis(2))
                     .perform(click());
         } catch (RuntimeException ignored) {}
 
@@ -76,9 +80,10 @@ public class PayPalCheckoutPopupBridgeTest {
                 .waitForExists(BROWSER_TIMEOUT);
 
         List<UiObject2> editTexts = uiDevice.findObjects(By.clazz("android.widget.EditText"));
+        int lastElement = editTexts.size() - 1;
 
-        UiObject2 loginEditText = editTexts.get(0);
-        UiObject2 passwordEditText = editTexts.get(1);
+        UiObject2 loginEditText = editTexts.get(lastElement - 1);
+        UiObject2 passwordEditText = editTexts.get(lastElement);
 
         loginEditText.setText(SANDBOX_PAYPAL_USERNAME);
         passwordEditText.setText(SANDBOX_PAYPAL_PASSWORD);
