@@ -19,7 +19,7 @@ android:
 before_script:
   - android list targets
   - echo no | android create avd --force -n test -t android-23 --abi "google_apis/armeabi-v7a"
-  - emulator -avd test -skin WXGA720 -no-audio -no-window &
+  - emulator -avd test -skin WXGA720 -no-window &
   - android-wait-for-emulator
   - sleep 60
   - adb shell input keyevent 82
